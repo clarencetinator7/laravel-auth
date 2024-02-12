@@ -11,7 +11,6 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        // return ['message' => 'register'];
         $validatedData = $request->validate([
             'name' => 'required|max:55',
             'email' => 'email|required|unique:users',

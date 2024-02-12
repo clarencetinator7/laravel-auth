@@ -77,6 +77,11 @@ export const validateToken = async (token: string) => {
   return response;
 };
 
+const removeToken = async () => {
+  cookies().delete("accessToken");
+  cookies().delete("user");
+};
+
 export const authenticateUser = async () => {
   const token = cookies().get("accessToken")?.value;
 
@@ -85,11 +90,11 @@ export const authenticateUser = async () => {
   }
 
   const isValid = await validateToken(token);
+  console.log(isValid);
 
   if (!isValid.success) {
     // Clear the cookies
-    cookies().delete("accessToken");
-    cookies().delete("user");
+    removeToken();
     redirect("/login");
   }
 
@@ -164,5 +169,7 @@ export const fetchTodos = async () => {
     .catch((err) => console.error(err));
   return response.data;
 };
+
+export const deleteTodos = async (todoId: string) => {};
 
 // -- END OF TODO ACTIONS --

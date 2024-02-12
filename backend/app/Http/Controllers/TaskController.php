@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * TODO:
+ * - Forgot Password
+ * - Auth Token Expiration
+ * - Active Status in tasks
+ */
+
 namespace App\Http\Controllers;
 
 use App\Models\Task;
@@ -69,5 +76,6 @@ class TaskController extends Controller
     public function destroy(Task $task)
     {
         //
+         
     }
 }
