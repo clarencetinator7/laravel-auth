@@ -1,8 +1,10 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+// -- AUTHENTICATION ACTIONS --
 export async function registerUser(prevState: any, formData: FormData) {
   const rawData = {
     name: formData.get("name"),
@@ -116,4 +118,31 @@ export const logoutUser = async () => {
   if (response.success) {
     redirect("/login");
   }
+};
+
+// -- END OF AUTHENTICATION ACTIONS --
+
+// -- TODO ACTIONS --
+export const addTodo = async (prevState: any, formData: FormData) => {
+  const token = cookies().get("accessToken")?.value;
+
+  const rawData = {
+    title: formData.get("todo"),
+  };
+
+  const response = await fetch("http://localhost:8000/api/todos", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(rawData),
+  })
+    .then((res) => res.json())
+    .catch((err) => console.error(err));
+
+  revalidatePath("/");
+  const responseData = { success: true, ...response };
+  return responseData;
 };
