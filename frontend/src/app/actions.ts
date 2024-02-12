@@ -130,7 +130,7 @@ export const addTodo = async (prevState: any, formData: FormData) => {
     title: formData.get("todo"),
   };
 
-  const response = await fetch("http://localhost:8000/api/todos", {
+  const response = await fetch("http://localhost:8000/api/u/tasks", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -140,9 +140,29 @@ export const addTodo = async (prevState: any, formData: FormData) => {
     body: JSON.stringify(rawData),
   })
     .then((res) => res.json())
-    .catch((err) => console.error(err));
+    .catch((err) => {
+      throw new Error(err);
+    });
 
   revalidatePath("/");
   const responseData = { success: true, ...response };
   return responseData;
 };
+
+export const fetchTodos = async () => {
+  const token = cookies().get("accessToken")?.value;
+
+  const response = await fetch("http://localhost:8000/api/u/tasks", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .catch((err) => console.error(err));
+  return response.data;
+};
+
+// -- END OF TODO ACTIONS --

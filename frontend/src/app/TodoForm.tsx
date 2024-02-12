@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { useFormState, useFormStatus } from "react-dom";
 import { addTodo } from "./actions";
 import { Alert, AlertTitle } from "@/components/ui/alert";
-import { useToast } from "@/components/ui/use-toast";
 
 export default function TodoForm() {
   const [state, formAction] = useFormState(addTodo, null);
