@@ -1,0 +1,1 @@
+This is your password reset code: {{ $code }}
