@@ -104,19 +104,20 @@ export const authenticateUser = async () => {
 };
 
 export const logoutUser = async () => {
-  // Clear the cookies
-  cookies().delete("accessToken");
-  cookies().delete("user");
-
   const response = await fetch("http://localhost:8000/api/logout", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      Authorization: `Bearer ${cookies().get("accessToken")?.value}`,
     },
   })
     .then((res) => res.json())
     .catch((err) => console.error(err));
+
+  // Clear the cookies
+  cookies().delete("accessToken");
+  cookies().delete("user");
 
   console.log(response);
 
@@ -140,6 +141,92 @@ export const requestVerification = async () => {
     .catch((err) => console.error(err));
 
   console.log(response);
+
+  return response;
+};
+
+export const resetPassword = async (prevState: any, formData: FormData) => {
+  const rawData = {
+    email: formData.get("email"),
+  };
+
+  const response = await fetch("http://localhost:8000/api/forgot-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(rawData),
+  })
+    .then((res) => res.json())
+    .catch((err) => console.error(err));
+
+  cookies().set({
+    name: "resetEmail",
+    value: formData.get("email")?.toString() || "",
+  });
+
+  console.log(response);
+
+  return response;
+};
+
+export const validateResetCode = async (prevState: any, formData: FormData) => {
+  const rawData = {
+    email: cookies().get("resetEmail")?.value,
+    code: formData.get("code"),
+  };
+
+  const response = await fetch(
+    "http://localhost:8000/api/validate-reset-code",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(rawData),
+    }
+  )
+    .then((res) => res.json())
+    .catch((err) => console.error(err));
+
+  cookies().set({
+    name: "resetCode",
+    value: formData.get("code")?.toString() || "",
+  });
+
+  console.log(response);
+
+  redirect("/reset-password/new-password");
+};
+
+export const resetNewPassword = async (prevState: any, formData: FormData) => {
+  const rawData = {
+    email: cookies().get("resetEmail")?.value,
+    code: cookies().get("resetCode")?.value,
+    password: formData.get("password"),
+    password_confirmation: formData.get("password_confirmation"),
+  };
+
+  console.log(rawData);
+
+  const response = await fetch("http://localhost:8000/api/reset-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(rawData),
+  })
+    .then((res) => res.json())
+    .catch((err) => console.error(err));
+
+  console.log(response);
+
+  if (response.success === true) {
+    redirect("/login");
+  }
 
   return response;
 };
