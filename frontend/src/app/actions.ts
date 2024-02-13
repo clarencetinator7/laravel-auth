@@ -104,19 +104,20 @@ export const authenticateUser = async () => {
 };
 
 export const logoutUser = async () => {
-  // Clear the cookies
-  cookies().delete("accessToken");
-  cookies().delete("user");
-
   const response = await fetch("http://localhost:8000/api/logout", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      Authorization: `Bearer ${cookies().get("accessToken")?.value}`,
     },
   })
     .then((res) => res.json())
     .catch((err) => console.error(err));
+
+  // Clear the cookies
+  cookies().delete("accessToken");
+  cookies().delete("user");
 
   console.log(response);
 

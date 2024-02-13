@@ -19,7 +19,9 @@ class AuthController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|max:55',
             'email' => 'email|required|unique:users',
-            'password' => 'required|confirmed'
+            'password' => 'required|confirmed|min:8|regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-=])[A-Za-z\d!@#$%^&*()-=]{8,}$/'
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase letter, one number and one special character'
         ]);
 
         return new AuthResource(User::create($validatedData));
@@ -61,29 +63,44 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($credentials)) {
-            /** @var \App\Models\User $user **/
-            $user = Auth::user();
+        // if (Auth::attempt($credentials)) {
+        //     /** @var \App\Models\User $user **/
+        //     $user = Auth::user();
 
-            $token = $user->createToken('auth-token');
+        //     $token = $user->createToken('auth-token');
 
-            return response([
-                'success' => true,
-                'data' => [
-                    'user' => auth()->user(), 'access_token' => $token->plainTextToken
-                ]
-            ]);
+        //     return response([
+        //         'success' => true,
+        //         'data' => [
+        //             'user' => auth()->user(), 'access_token' => $token->plainTextToken
+        //         ]
+        //     ]);
+        // }
+
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user || !password_verify($credentials['password'], $user->password)) {
+            return response(['success' => false, 'message' => 'Invalid credentials'], 401);
         }
 
-        return response(['success' => false, 'message' => 'Invalid credentials'], 401);
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return response([
+            'success' => true,
+            'data' => [
+                'user' => $user, 'access_token' => $token
+            ]
+        ]);
+
+        // return response(['success' => false, 'message' => 'Invalid credentials'], 401);
     }
 
     public function logout(Request $request)
     {
 
         $request->user()->tokens()->delete();
-
         return response(['success' => true, 'message' => 'Logged out']);
+        // $request->user()->currentAccessToken()->delete();
     }
 
     public function validateToken(Request $request)
@@ -149,7 +166,9 @@ class AuthController extends Controller
         $validatedData = $request->validate([
             'email' => 'email|required',
             'code' => 'required',
-            'password' => 'required|confirmed'
+            'password' => 'required|confirmed|min:8|regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-=])[A-Za-z\d!@#$%^&*()-=]{8,}$/'
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase letter, one number and one special character'
         ]);
 
         $user = User::where('email', $validatedData['email'])->first();
