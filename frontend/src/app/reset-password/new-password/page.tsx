@@ -8,6 +8,7 @@ import { useFormState } from "react-dom";
 
 export default function NewPasswordPage() {
   const [state, formAction] = useFormState(resetNewPassword, null);
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center">
       <Card className="w-full sm:max-w-[400px]">

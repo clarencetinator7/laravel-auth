@@ -209,6 +209,8 @@ export const resetNewPassword = async (prevState: any, formData: FormData) => {
     password_confirmation: formData.get("password_confirmation"),
   };
 
+  console.log(rawData);
+
   const response = await fetch("http://localhost:8000/api/reset-password", {
     method: "POST",
     headers: {
