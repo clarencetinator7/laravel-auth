@@ -120,6 +120,30 @@ class AuthController extends Controller
         return response(['success' => true, 'message' => 'Code sent to email'], 200);
     }
 
+    public function validateResetPasswordCode(Request $request)
+    {
+        $validatedData = $request->validate([
+            'email' => 'email|required',
+            'code' => 'required'
+        ]);
+
+        $user = User::where('email', $validatedData['email'])->first();
+
+        if (!$user) {
+            return response(['success' => false, 'message' => 'User not found'], 404);
+        }
+
+        if ($user->reset_code !== $validatedData['code']) {
+            return response(['success' => false, 'message' => 'Invalid code'], 400);
+        }
+
+        if ($user->reset_code_expiry < now()) {
+            return response(['success' => false, 'message' => 'Code expired'], 400);
+        }
+
+        return response(['success' => true, 'message' => 'Code is valid'], 200);
+    }
+
     public function resetPassword(Request $request)
     {
         $validatedData = $request->validate([
@@ -140,6 +164,11 @@ class AuthController extends Controller
 
         if ($user->reset_code_expiry < now()) {
             return response(['success' => false, 'message' => 'Code expired'], 400);
+        }
+
+        // Check if the password is the same as the old password
+        if (password_verify($validatedData['password'], $user->password)) {
+            return response(['success' => false, 'message' => 'New password cannot be the same as the old password'], 400);
         }
 
         $user->password = bcrypt($validatedData['password']);

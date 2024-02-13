@@ -26,14 +26,19 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['namespace' => 'App\Http\Controllers'], function () {
     Route::post('/register', AuthController::class . '@register');
     Route::post('/login', AuthController::class . '@login');
+
     Route::post('/forgot-password', AuthController::class . '@resetPasswordRequest');
+    Route::post('/validate-reset-code', AuthController::class . '@validateResetPasswordCode');
     Route::post('/reset-password', AuthController::class . '@resetPassword');
+
     Route::get('/email/verify/{id}/{hash}', AuthController::class . '@verifyEmail')->name('verification.verify');
 });
 
 Route::group(['prefix' => 'u', 'namespace' => 'App\Http\Controllers', 'middleware' => 'auth:sanctum'], function () {
     Route::apiResource('tasks', TaskController::class);
 });
+
+
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', AuthController::class . '@logout');
