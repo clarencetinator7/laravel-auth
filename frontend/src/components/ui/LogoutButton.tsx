@@ -6,6 +6,8 @@ export default function LogoutButton() {
   return (
     <Button
       type="button"
+      variant={"link"}
+      className="text-gray-500 hover:text-red-700"
       onClick={() => {
         logoutUser();
       }}

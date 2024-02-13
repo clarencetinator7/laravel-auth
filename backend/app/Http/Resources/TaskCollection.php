@@ -17,6 +17,9 @@ class TaskCollection extends ResourceCollection
     // return [
     //   'data' => $this->collection,
     // ];
-    return parent::toArray($request);
+    return [
+      'success' => true,
+      'data' => $this->collection,
+    ];
   }
 }

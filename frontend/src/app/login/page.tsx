@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useFormState, useFormStatus } from "react-dom";
 import { loginUser } from "../actions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Login() {
   const [state, formAction] = useFormState(loginUser, null);
@@ -24,6 +25,11 @@ export default function Login() {
           <CardDescription>Enter your credentials to login</CardDescription>
         </CardHeader>
         <CardContent className="py-4">
+          {state?.success === false && state?.message && (
+            <Alert variant={"destructive"}>
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
+          )}
           <form action={formAction}>
             <div>
               <Label htmlFor="email" className="mb-2">
