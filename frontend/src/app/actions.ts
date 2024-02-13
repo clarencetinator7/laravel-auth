@@ -125,6 +125,25 @@ export const logoutUser = async () => {
   }
 };
 
+export const requestVerification = async () => {
+  const token = cookies().get("accessToken")?.value;
+
+  const response = await fetch("http://localhost:8000/api/email/verify", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .catch((err) => console.error(err));
+
+  console.log(response);
+
+  return response;
+};
+
 // -- END OF AUTHENTICATION ACTIONS --
 
 // -- TODO ACTIONS --

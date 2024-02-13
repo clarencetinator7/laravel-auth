@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Resources\AuthResource;
 use App\Mail\MailNotify;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -19,8 +22,36 @@ class AuthController extends Controller
             'password' => 'required|confirmed'
         ]);
 
-        // $validatedData['password'] = bcrypt($request->password);
         return new AuthResource(User::create($validatedData));
+    }
+
+    public function verifyRequest(Request $request)
+    {
+        $request->user()->sendEmailVerificationNotification();
+
+        return response(['success' => true, 'message' => 'Email verification link sent']);
+    }
+
+    public function verifyEmail(Request $request)
+    {
+
+        // User find with id
+        $user = User::find($request->id);
+
+        if (!$user) {
+            return response(['success' => false, 'message' => 'User not found'], 404);
+        }
+
+        if ($user->email_verified_at !== null) {
+            return response(['success' => true, 'message' => 'Email already verified'], 200);
+        }
+
+        if ($user->markEmailAsVerified()) {
+            event(new Verified($user));
+        }
+
+        // Better to use env('FRONTEND_URL') instead of hardcoding the URL        
+        return redirect('http://localhost:3000/');
     }
 
     public function login(Request $request)
@@ -118,6 +149,4 @@ class AuthController extends Controller
 
         return response(['success' => true, 'message' => 'Password reset successfully']);
     }
-
-
 }
